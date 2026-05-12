@@ -62,7 +62,7 @@ func GetLinkInfo(LinkID int) (Contents []ai.Content) {
 			content.Type = "text"
 			content.Text = v.Text
 			Contents = append(Contents, content)
-			break
+			continue
 		}
 		if v.Type != "text" {
 			content.Type = "image_url"
