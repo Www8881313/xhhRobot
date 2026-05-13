@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strconv"
 	"sync"
 	"time"
+	"xhhrobot/db"
 	"xhhrobot/loger"
 
 	"go.uber.org/zap"
@@ -40,6 +42,16 @@ func Reply(text, link_id, reply_id, root_id, iscy string) (isok bool) {
 		return false
 	}
 	if resps.Status != "ok" {
+		if resps.Status == "failed" {
+			CommentID, err := strconv.Atoi(reply_id)
+			if err != nil {
+				loger.Loger.Fatal("[XHH]不可能发生的事", zap.Error(err), zap.Any("info", resps), zap.Any("errs", reply_id))
+			}
+			db.Replyed(CommentID)
+			loger.Loger.Info("[XHH]因为无法评论，所以已标记为完成", zap.Any("Resp", resps))
+			time.Sleep(5 * time.Second)
+			return true
+		}
 		if resps.Msg == "评论已被删除" {
 			time.Sleep(5 * time.Second)
 			return true

@@ -5,6 +5,7 @@ import (
 	"io"
 	"strconv"
 	"xhhrobot/ai"
+	"xhhrobot/db"
 	"xhhrobot/loger"
 
 	"go.uber.org/zap"
@@ -28,7 +29,7 @@ type TextDetail struct {
 	Url  string `json:"url"`
 }
 
-func GetLinkInfo(LinkID int) (Contents []ai.Content, Topics []ai.Topics, Tags []ai.Tags) {
+func GetLinkInfo(LinkID int, CommentID int) (Contents []ai.Content, Topics []ai.Topics, Tags []ai.Tags) {
 	resp := SendReq("GET", "/bbs/app/link/tree", nil, "?h_src&link_id="+strconv.Itoa(LinkID))
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -40,9 +41,14 @@ func GetLinkInfo(LinkID int) (Contents []ai.Content, Topics []ai.Topics, Tags []
 	err = json.Unmarshal(data, &RespS)
 	if err != nil {
 		loger.Loger.Error("[XHH]反序列化失败", zap.Error(err), zap.Any("data", string(data)))
+
 		return
 	}
 	if RespS.Stat != "ok" {
+		if RespS.Stat == "failed" {
+			db.Replyed(CommentID)
+			loger.Loger.Warn("[XHH]原帖无法被查看，所以已标记为完成")
+		}
 		loger.Loger.Error("[XHH]返回了错误的内容", zap.Any("info", RespS), zap.Any("data", string(data)))
 		return
 	}
