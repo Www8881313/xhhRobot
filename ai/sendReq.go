@@ -13,10 +13,8 @@ import (
 
 type Content struct {
 	Type   string `json:"type"`
-	ImgUrl struct {
-		Url string `json:"url"`
-	} `json:"image_url"`
-	Text string `json:"text"`
+	ImgUrl string `json:"image_url"`
+	Text   string `json:"text"`
 }
 type Messages[T []Content | string] struct {
 	Role    string `json:"role"`
@@ -81,7 +79,10 @@ func SendReq(Model string, Msg []any) (Jresp respStruct) {
 		loger.Loger.Error("[Ai]无法反序列化JSON", zap.Error(err), zap.String("body", string(Dresp)))
 		return
 	}
-
+	if len(Jresp.Choices) == 0 {
+		loger.Loger.Fatal("[Ai]Ai返回错误", zap.Any("Resp", resp))
+		return
+	}
 	return Jresp
 
 }

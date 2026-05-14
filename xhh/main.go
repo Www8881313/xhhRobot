@@ -141,6 +141,7 @@ func AutoReply() {
 			}()
 		}
 		wg.Wait()
+		time.Sleep(time.Duration(ReplyTime) * time.Second)
 	}
 
 }
