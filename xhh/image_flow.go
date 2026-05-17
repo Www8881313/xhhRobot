@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 	"xhhrobot/ai"
+	"xhhrobot/config"
 	"xhhrobot/loger"
 
 	"go.uber.org/zap"
@@ -101,14 +103,25 @@ func resolveXHHImageURL(ctx context.Context, imageResult ai.ImageResult, dryRun 
 		imageBytes = data
 	}
 	if len(imageBytes) == 0 {
-		return "", XHHCOSUploadPlan{}, errors.New("generated image has no bytes for XHH COS upload")
+		return "", XHHCOSUploadPlan{}, errors.New("generated image has no bytes for upload")
 	}
 
-	plan, err := UploadToXHHCOS(ctx, imageBytes, imageResult.Path, dryRun)
-	if err != nil {
-		return "", plan, err
+	mode := strings.ToLower(strings.TrimSpace(config.ConfigStruct.Image.UploadMode))
+	if mode == "" || mode == "xhh_cos" || mode == "xhh-cos" || mode == "cos" {
+		plan, err := UploadToXHHCOS(ctx, imageBytes, imageResult.Path, dryRun)
+		if err != nil {
+			return "", plan, err
+		}
+		return plan.CDNURL, plan, nil
 	}
-	return plan.CDNURL, plan, nil
+	if mode == "external" || mode == "static" {
+		plan, err := UploadToExternalImageHost(imageBytes, imageResult.Path, dryRun)
+		if err != nil {
+			return "", plan, err
+		}
+		return plan.CDNURL, plan, nil
+	}
+	return "", XHHCOSUploadPlan{}, fmt.Errorf("unsupported image.uploadMode: %s", config.ConfigStruct.Image.UploadMode)
 }
 
 func printImageDryRun(commentID, linkID, userID int, prompt string, imageResult ai.ImageResult, uploadPlan XHHCOSUploadPlan, form mapLikeValues) {

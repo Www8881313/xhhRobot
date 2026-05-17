@@ -31,12 +31,15 @@ var ConfigStruct struct {
 		Token   string `json:"token"`
 	} `json:"ai"`
 	Image struct {
-		Model          string `json:"model"`
-		BaseUrl        string `json:"baseUrl"`
-		Token          string `json:"token"`
-		Size           string `json:"size"`
-		ResponseFormat string `json:"responseFormat"`
-		OutputDir      string `json:"outputDir"`
+		Model           string `json:"model"`
+		BaseUrl         string `json:"baseUrl"`
+		Token           string `json:"token"`
+		Size            string `json:"size"`
+		ResponseFormat  string `json:"responseFormat"`
+		OutputDir       string `json:"outputDir"`
+		UploadMode      string `json:"uploadMode"`
+		ExternalDir     string `json:"externalDir"`
+		ExternalBaseUrl string `json:"externalBaseUrl"`
 	} `json:"image"`
 }
 
