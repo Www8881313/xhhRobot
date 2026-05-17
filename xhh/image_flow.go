@@ -66,12 +66,8 @@ func ProcessImageGenerationComment(linkID, commentID, rootID, userID int, text s
 	}
 	loger.Loger.Info("[XHH]图片 URL 准备完成", zap.Int("comment_id", commentID), zap.String("image_url", imageURL), zap.String("upload_key", uploadPlan.Key), zap.Bool("uploaded", uploadPlan.Uploaded), zap.Duration("duration", time.Since(started)))
 
-	replyID := strconv.Itoa(commentID)
-	replyRootID := rootID
-	if replyRootID <= 0 {
-		replyRootID = commentID
-	}
-	rootIDText := strconv.Itoa(replyRootID)
+	replyID := "-1"
+	rootIDText := "-1"
 	replyText := "已生成：" + prompt
 	form := CommentCreateFormData(replyText, strconv.Itoa(linkID), replyID, rootIDText, "0", imageURL)
 
