@@ -185,7 +185,10 @@ func AutoReply() {
 						IsErr()
 						return
 					}
-					if mentionTarget {
+					explicitMention := GetExplicitMentionFromPost(v.LinkID, v.Text, v.Uid)
+					if explicitMention != "" {
+						ReplyText = explicitMention + " " + ReplyText
+					} else if mentionTarget {
 						ReplyText = mention + " " + ReplyText
 					}
 					isok = Reply(ReplyText, strconv.Itoa(v.LinkID), strconv.Itoa(v.CommentID), strconv.Itoa(v.RootID), "")

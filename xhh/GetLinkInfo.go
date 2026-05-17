@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"html"
 	"io"
+	"regexp"
 	"strconv"
+	"strings"
 	"xhhrobot/ai"
 	"xhhrobot/loger"
 
@@ -61,6 +63,11 @@ type TextDetail struct {
 	Text string `json:"text"`
 	Type string `json:"type"`
 	Url  string `json:"url"`
+}
+
+var explicitMentionTargetPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`(?:艾特|提到|喊|叫)\s*@?([^\s，,。.!！?？:：、@]{1,24})`),
+	regexp.MustCompile(`(?:帮我|请|顺便|可以|能不能)\s*@([^\s，,。.!！?？:：、@]{1,24})`),
 }
 
 func buildMention(uid int, username string) string {
@@ -236,6 +243,117 @@ func findComment(comments []CommentInfo, commentID int) *CommentInfo {
 		}
 	}
 	return nil
+}
+
+func GetExplicitMentionFromPost(linkID int, text string, currentUserID int) string {
+	targetName := extractExplicitMentionTarget(text)
+	if targetName == "" {
+		return ""
+	}
+
+	mention := findUserMentionInPost(linkID, targetName, currentUserID)
+	loger.Loger.Info("[XHH]Explicit mention search", zap.String("target", targetName), zap.Bool("found", mention != ""))
+	return mention
+}
+
+func extractExplicitMentionTarget(text string) string {
+	cleaned := html.UnescapeString(htmlTagPattern.ReplaceAllString(text, " "))
+	for _, pattern := range explicitMentionTargetPatterns {
+		match := pattern.FindStringSubmatch(cleaned)
+		if len(match) < 2 {
+			continue
+		}
+		target := strings.Trim(strings.TrimSpace(match[1]), "@：:，,。.!！?？、")
+		if target == "" || strings.Contains(target, "机器人") {
+			continue
+		}
+		return target
+	}
+	return ""
+}
+
+func findUserMentionInPost(linkID int, targetName string, currentUserID int) string {
+	firstResp, ok := fetchLinkInfoPage(linkID, 1)
+	if !ok {
+		return ""
+	}
+
+	maxPage := firstResp.Result.TotalPage
+	if maxPage <= 0 {
+		maxPage = 1
+	}
+	if maxPage > 20 {
+		maxPage = 20
+	}
+
+	exact := findUserMentionInGroups(firstResp.Result.Comments, targetName, currentUserID, true)
+	if exact != "" {
+		return exact
+	}
+	partialMatches := collectUserMentionMatches(firstResp.Result.Comments, targetName, currentUserID)
+
+	for page := 2; page <= maxPage; page++ {
+		pageResp, ok := fetchLinkInfoPage(linkID, page)
+		if !ok {
+			continue
+		}
+		exact = findUserMentionInGroups(pageResp.Result.Comments, targetName, currentUserID, true)
+		if exact != "" {
+			return exact
+		}
+		partialMatches = append(partialMatches, collectUserMentionMatches(pageResp.Result.Comments, targetName, currentUserID)...)
+	}
+
+	unique := map[int]string{}
+	for _, match := range partialMatches {
+		unique[match.UserID] = match.User.UserName
+	}
+	if len(unique) != 1 {
+		return ""
+	}
+	for uid, username := range unique {
+		return buildMention(uid, username)
+	}
+	return ""
+}
+
+func findUserMentionInGroups(groups []commentGroup, targetName string, currentUserID int, exact bool) string {
+	for _, group := range groups {
+		matches := collectUserMentionMatches([]commentGroup{group}, targetName, currentUserID)
+		for _, match := range matches {
+			if exact && normalizeMentionName(match.User.UserName) == normalizeMentionName(targetName) {
+				return buildMention(match.UserID, match.User.UserName)
+			}
+		}
+	}
+	return ""
+}
+
+func collectUserMentionMatches(groups []commentGroup, targetName string, currentUserID int) []CommentInfo {
+	var matches []CommentInfo
+	target := normalizeMentionName(targetName)
+	if target == "" {
+		return matches
+	}
+	for _, group := range groups {
+		for _, comment := range group.Comment {
+			username := normalizeMentionName(comment.User.UserName)
+			if comment.UserID == 0 || comment.UserID == currentUserID || comment.User.UserName == "" || strconv.Itoa(comment.UserID) == Info.HeyBoxId {
+				continue
+			}
+			if username == target || strings.Contains(username, target) {
+				matches = append(matches, comment)
+			}
+		}
+	}
+	return matches
+}
+
+func normalizeMentionName(name string) string {
+	name = html.UnescapeString(strings.TrimSpace(name))
+	name = strings.TrimPrefix(name, "@")
+	name = strings.ToLower(name)
+	return strings.ReplaceAll(name, " ", "")
 }
 
 func GetCommentAuthorMention(linkID int, rootCommentID int, commentID int, userID int) string {
