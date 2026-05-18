@@ -1,9 +1,9 @@
 package xhh
 
 import (
+	"openxhh/ai"
 	"strings"
 	"testing"
-	"xhhrobot/ai"
 )
 
 func TestSelectImageContextText(t *testing.T) {

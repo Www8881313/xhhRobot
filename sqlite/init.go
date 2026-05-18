@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
-	"xhhrobot/loger"
+	"openxhh/loger"
 
 	_ "github.com/mattn/go-sqlite3"
 	"go.uber.org/zap"

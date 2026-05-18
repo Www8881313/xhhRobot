@@ -2,8 +2,8 @@ package config
 
 import (
 	"encoding/json"
+	"openxhh/loger"
 	"os"
-	"xhhrobot/loger"
 )
 
 var ConfigStruct struct {
@@ -38,8 +38,8 @@ var ConfigStruct struct {
 		ResponseFormat  string `json:"responseFormat"`
 		OutputDir       string `json:"outputDir"`
 		UploadMode      string `json:"uploadMode"`
-		ExternalDir      string `json:"externalDir"`
-		ExternalBaseUrl  string `json:"externalBaseUrl"`
+		ExternalDir     string `json:"externalDir"`
+		ExternalBaseUrl string `json:"externalBaseUrl"`
 		PromptRefine    bool   `json:"promptRefine"`
 		PromptModel     string `json:"promptModel"`
 		PromptBaseUrl   string `json:"promptBaseUrl"`

@@ -1,4 +1,4 @@
-module xhhrobot
+module openxhh
 
 go 1.26.2
 

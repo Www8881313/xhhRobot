@@ -4,11 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"openxhh/config"
+	"openxhh/loger"
+	"openxhh/xhh"
 	"os"
 	"time"
-	"xhhrobot/config"
-	"xhhrobot/loger"
-	"xhhrobot/xhh"
 )
 
 func main() {

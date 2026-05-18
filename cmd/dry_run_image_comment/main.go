@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"openxhh/config"
+	"openxhh/loger"
+	"openxhh/xhh"
 	"os"
-	"xhhrobot/config"
-	"xhhrobot/loger"
-	"xhhrobot/xhh"
 )
 
 func main() {

@@ -12,12 +12,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"openxhh/config"
+	"openxhh/loger"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
-	"xhhrobot/config"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )

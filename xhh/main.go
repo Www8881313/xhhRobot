@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"openxhh/ai"
+	"openxhh/config"
+	"openxhh/db"
+	"openxhh/loger"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"xhhrobot/ai"
-	"xhhrobot/config"
-	"xhhrobot/db"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )
@@ -131,6 +131,7 @@ func jsonInt(raw json.RawMessage) int {
 	number, _ = strconv.Atoi(text)
 	return number
 }
+
 type Respo struct {
 	Msg    string `json:"msg"`
 	Result struct {

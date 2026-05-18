@@ -4,9 +4,9 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"openxhh/config"
+	"openxhh/loger"
 	"strconv"
-	"xhhrobot/config"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )

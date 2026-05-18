@@ -8,29 +8,29 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"openxhh/config"
+	"openxhh/loger"
 	"strings"
 	"time"
-	"xhhrobot/config"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )
 
 type ImagePromptRefineRequest struct {
-	OriginalText    string
-	RulePrompt      string
-	ContextPrompt   string
-	UsePostContext  bool
+	OriginalText      string
+	RulePrompt        string
+	ContextPrompt     string
+	UsePostContext    bool
 	UseCommentContext bool
-	UseImageInput   bool
+	UseImageInput     bool
 }
 
 type ImagePromptRefineResult struct {
-	ImagePrompt       string `json:"image_prompt"`
-	MentionTarget     string `json:"mention_target"`
-	NeedsPostContext  bool   `json:"needs_post_context"`
-	NeedsCommentContext bool `json:"needs_comment_context"`
-	NeedsImageInput   bool   `json:"needs_image_input"`
+	ImagePrompt         string `json:"image_prompt"`
+	MentionTarget       string `json:"mention_target"`
+	NeedsPostContext    bool   `json:"needs_post_context"`
+	NeedsCommentContext bool   `json:"needs_comment_context"`
+	NeedsImageInput     bool   `json:"needs_image_input"`
 }
 
 type promptRefineMessage struct {

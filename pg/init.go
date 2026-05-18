@@ -3,8 +3,8 @@ package pg
 import (
 	"context"
 	"fmt"
-	"xhhrobot/config"
-	"xhhrobot/loger"
+	"openxhh/config"
+	"openxhh/loger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"

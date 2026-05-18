@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"openxhh/ai"
+	"openxhh/config"
+	"openxhh/loger"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-	"xhhrobot/ai"
-	"xhhrobot/config"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )
@@ -58,12 +58,12 @@ func ProcessImageGenerationComment(linkID, commentID, rootID, userID int, text s
 	generationPrompt = BuildContextualImagePrompt(prompt, command, linkID, rootID, commentID, userID)
 	if ai.ShouldRefineImagePrompt() {
 		refined, err := ai.RefineImagePrompt(ctx, ai.ImagePromptRefineRequest{
-			OriginalText:       text,
-			RulePrompt:         prompt,
-			ContextPrompt:      generationPrompt,
-			UsePostContext:     command.UsePostContext,
-			UseCommentContext:  command.UseCommentContext,
-			UseImageInput:      command.UseImageInput,
+			OriginalText:      text,
+			RulePrompt:        prompt,
+			ContextPrompt:     generationPrompt,
+			UsePostContext:    command.UsePostContext,
+			UseCommentContext: command.UseCommentContext,
+			UseImageInput:     command.UseImageInput,
 		})
 		if err != nil {
 			loger.Loger.Warn("[XHH]文本模型优化生图 prompt 失败，使用规则 prompt", zap.Error(err))

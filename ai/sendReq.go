@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"xhhrobot/config"
-	"xhhrobot/loger"
+	"openxhh/config"
+	"openxhh/loger"
 
 	"go.uber.org/zap"
 )

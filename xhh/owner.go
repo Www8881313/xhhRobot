@@ -1,10 +1,10 @@
 package xhh
 
 import (
+	"openxhh/config"
+	"openxhh/loger"
 	"strconv"
 	"strings"
-	"xhhrobot/config"
-	"xhhrobot/loger"
 )
 
 var Owners []int

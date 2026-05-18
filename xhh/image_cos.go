@@ -11,11 +11,11 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"openxhh/config"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
-	"xhhrobot/config"
 )
 
 const xhhCOSBucket = "imgheybox-1251007209"

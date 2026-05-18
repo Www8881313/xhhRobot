@@ -1,331 +1,683 @@
-# xhhRobot 增强版
+# Openxhh
 
-基于 [SomeOvO/xhhRobot](https://github.com/SomeOvO/xhhRobot) 的小黑盒 AI 自动回复机器人增强版。
+
+
+小黑盒 AI 自动回复机器人 Windows 图形化增强版。
+
+
+
+
 
 本版本重点增强 AI 回复时的上下文能力：在小黑盒接口返回评论楼层数据时，AI 不只看到帖子正文，还会看到当前评论楼层的文字上下文和评论图片，从而能更准确地理解「这个怎么样」「楼上说得对吗」这类问题。
 
+
+
 ## 功能
 
+
+
 - 自动检查配置白名单用户的 @ 消息，并调用 OpenAI 兼容接口回复。
+
 - 支持自定义 AI 接口、模型和 prompt。
+
 - 支持评论区 @ 生图：`生图`、`画图`、`生成图片`。
+
 - 支持将生成图片写入 VPS 外部静态图床，并用 `imgs=<图片URL>` 发布顶级带图评论。
+
 - 保留小黑盒 COS 上传实验路径；当前推荐先使用 `image.uploadMode=external`。
+
 - 支持 SQLite / PostgreSQL，个人部署建议使用 SQLite。
+
 - 增强 AI 输入上下文：
+
   - 帖子标题和正文；
+
   - 帖子正文图片；
+
   - 当前评论楼层上下文；
+
   - 当前评论楼层里的图片，最多附带 4 张。
+
 - 保留原版 `config.json`、`cookie.json`、`sql.db` 工作方式。
+
+
 
 说明：评论楼层上下文依赖小黑盒接口返回的 `comments` 字段。部分帖子或楼层接口可能不返回评论区数据，这种情况下机器人仍会正常回复，但只能基于帖子正文和当前 @ 内容判断。
 
+
+
+## Windows 图形化安装
+
+
+
+Windows 用户推荐下载 Release 中的 `Openxhh-Setup-x64.exe`，双击安装后从桌面快捷方式打开本地控制台。控制台支持可视化编辑配置、扫码登录、启动/停止机器人、查看日志和设置开机自启，不需要在本机安装 Go 或 GCC。
+
+
+
+详细说明见 [docs/windows.md](docs/windows.md)。
+
+
+
 ## 快速更新已安装的原版
 
-如果你已经按原版方式部署在 `/opt/xhhRobot`，并且已有：
+
+
+如果你已经按原版方式部署在 `/opt/Openxhh`，并且已有：
+
+
 
 ```text
-/opt/xhhRobot/config.json
-/opt/xhhRobot/cookie.json
-/opt/xhhRobot/xhhRobot
+
+/opt/Openxhh/config.json
+
+/opt/Openxhh/cookie.json
+
+/opt/Openxhh/Openxhh
+
 ```
+
+
 
 可以直接执行：
 
+
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Www8881313/xhhRobot/main/scripts/update-installed.sh | sudo bash
+
+curl -fsSL https://raw.githubusercontent.com/Www8881313/Openxhh/main/scripts/update-installed.sh | sudo bash
+
 ```
+
+
 
 脚本会自动完成：
 
+
+
 1. 安装必要构建依赖；
+
 2. 拉取本仓库源码；
-3. 编译新的 `xhhRobot` 二进制；
-4. 停止 `xhhRobot` systemd 服务，如果存在；
+
+3. 编译新的 `Openxhh` 二进制；
+
+4. 停止 `Openxhh` systemd 服务，如果存在；
+
 5. 备份旧二进制；
+
 6. 替换为增强版二进制；
+
 7. 保留原来的 `config.json`、`cookie.json`、`sql.db` 和日志；
+
 8. 重新启动服务。
+
+
 
 如果你是从旧版升级，脚本不会改动原有 prompt、模型、数据库或 Cookie。需要生图功能时，只需在原 `config.json` 里额外补充 `image` 配置块。
 
-如果你的安装目录不是 `/opt/xhhRobot`，可以这样指定：
+
+
+如果你的安装目录不是 `/opt/Openxhh`，可以这样指定：
+
+
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Www8881313/xhhRobot/main/scripts/update-installed.sh | sudo env INSTALL_DIR=/你的安装目录 bash
+
+curl -fsSL https://raw.githubusercontent.com/Www8881313/Openxhh/main/scripts/update-installed.sh | sudo env INSTALL_DIR=/你的安装目录 bash
+
 ```
 
-如果你的 systemd 服务名不是 `xhhRobot`，可以这样指定：
+
+
+如果你的 systemd 服务名不是 `Openxhh`，可以这样指定：
+
+
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Www8881313/xhhRobot/main/scripts/update-installed.sh | sudo env SERVICE_NAME=你的服务名 bash
+
+curl -fsSL https://raw.githubusercontent.com/Www8881313/Openxhh/main/scripts/update-installed.sh | sudo env SERVICE_NAME=你的服务名 bash
+
 ```
+
+
 
 也可以先下载脚本再执行：
 
+
+
 ```bash
-curl -fsSL -o update-installed.sh https://raw.githubusercontent.com/Www8881313/xhhRobot/main/scripts/update-installed.sh
+
+curl -fsSL -o update-installed.sh https://raw.githubusercontent.com/Www8881313/Openxhh/main/scripts/update-installed.sh
+
 sudo bash update-installed.sh
+
 ```
+
+
 
 ## 全新安装
 
+
+
 ### 1. 下载源码并编译
 
+
+
 ```bash
+
 apt update
+
 apt install -y git curl ca-certificates build-essential libsqlite3-dev snapd
+
 systemctl enable --now snapd.socket
+
 snap install go --classic
 
-git clone https://github.com/Www8881313/xhhRobot /opt/xhhRobot-src
-cd /opt/xhhRobot-src
+
+
+git clone https://github.com/Www8881313/Openxhh /opt/Openxhh-src
+
+cd /opt/Openxhh-src
+
 export GOPROXY=https://goproxy.cn,direct
+
 export GOSUMDB=sum.golang.google.cn
+
 export GOMAXPROCS=1
-go build -p 1 -o xhhRobot .
+
+go build -p 1 -o Openxhh .
+
 ```
+
+
 
 ### 2. 准备运行目录
 
+
+
 ```bash
-mkdir -p /opt/xhhRobot
-cp /opt/xhhRobot-src/xhhRobot /opt/xhhRobot/xhhRobot
-chmod +x /opt/xhhRobot/xhhRobot
-cd /opt/xhhRobot
+
+mkdir -p /opt/Openxhh
+
+cp /opt/Openxhh-src/Openxhh /opt/Openxhh/Openxhh
+
+chmod +x /opt/Openxhh/Openxhh
+
+cd /opt/Openxhh
+
 ```
+
+
 
 ### 3. 生成配置文件
 
+
+
 首次运行会生成 `config.json` 并退出：
 
+
+
 ```bash
-./xhhRobot
+
+./Openxhh
+
 ```
+
+
 
 编辑配置：
 
+
+
 ```bash
-nano /opt/xhhRobot/config.json
+
+nano /opt/Openxhh/config.json
+
 ```
+
+
 
 推荐个人部署使用 SQLite：
 
+
+
 ```json
+
 {
+
   "xhh": {
+
     "checkTime": 60,
+
     "replyTime": 30,
+
     "owner": "你的数字UID",
+
     "deviceID": "",
+
     "baseUrl": "https://api.xiaoheihe.cn",
+
     "webver": "2.5",
+
     "version": "999.0.4"
+
   },
+
   "database": {
+
     "type": "sqlite",
+
     "db": "",
+
     "host": "",
+
     "port": "",
+
     "user": "",
+
     "passwd": ""
+
   },
+
   "ai": {
+
     "model": "你的模型名",
+
     "prompt": "你的回复策略",
+
     "baseUrl": "你的 OpenAI 兼容 /v1/chat/completions 地址",
+
     "token": "你的 AI API Token"
+
   },
+
   "image": {
+
     "model": "gpt-image-2",
+
     "baseUrl": "你的 OpenAI 兼容 /v1/images/generations 地址",
+
     "token": "你的图片 API Token",
+
     "size": "1024x1024",
+
     "responseFormat": "b64_json",
+
     "outputDir": "images",
+
     "uploadMode": "external",
+
     "externalDir": "/var/www/xhh-images",
+
     "externalBaseUrl": "http://你的VPS公网IP/xhh-images"
+
   }
+
 }
+
 ```
+
+
 
 注意：
 
+
+
 - `xhh.owner` 填小黑盒数字 UID，不是昵称。
+
 - `ai.baseUrl` 要填完整的 Chat Completions 地址，例如 `/v1/chat/completions`。
+
 - `image.baseUrl` 要填完整的 Images Generations 地址，例如 `/v1/images/generations`。
+
 - `image.uploadMode=external` 是当前推荐方案，会把图片写入 `image.externalDir`，评论里使用 `image.externalBaseUrl`。
+
 - 不要公开 `config.json`、`cookie.json`、`sql.db`。
+
+
 
 ### 4. 准备外部图片目录，可选但推荐
 
+
+
 如果需要评论区生图，先让 VPS 暴露一个静态图片目录。已安装 Nginx 时，可在默认站点里加入：
 
+
+
 ```nginx
+
 location /xhh-images/ {
+
     alias /var/www/xhh-images/;
+
     add_header Access-Control-Allow-Origin *;
+
 }
+
 ```
+
+
 
 准备目录，并放入一张测试图：
 
+
+
 ```bash
+
 mkdir -p /var/www/xhh-images
+
 cp /你的测试图片.png /var/www/xhh-images/test.png
+
 chmod 755 /var/www/xhh-images
+
 chmod 644 /var/www/xhh-images/test.png
+
 nginx -t && systemctl reload nginx
+
 ```
+
+
 
 确认公网可访问：
 
+
+
 ```bash
+
 curl -I http://你的VPS公网IP/xhh-images/test.png
+
 ```
+
+
 
 ### 5. 登录小黑盒
 
+
+
 ```bash
-cd /opt/xhhRobot
-./xhhRobot -mode login
+
+cd /opt/Openxhh
+
+./Openxhh -mode login
+
 ```
+
+
 
 扫码成功后会生成：
 
+
+
 ```text
-/opt/xhhRobot/cookie.json
+
+/opt/Openxhh/cookie.json
+
 ```
+
+
 
 ### 6. 前台试跑
 
+
+
 ```bash
-cd /opt/xhhRobot
-./xhhRobot -mode start
+
+cd /opt/Openxhh
+
+./Openxhh -mode start
+
 ```
+
+
 
 如果确认正常，再配置 systemd。
 
+
+
 ### 7. systemd 后台运行
 
+
+
 ```bash
-cat >/etc/systemd/system/xhhRobot.service <<'EOF'
+
+cat >/etc/systemd/system/Openxhh.service <<'EOF'
+
 [Unit]
-Description=xhhRobot
+
+Description=Openxhh
+
 After=network-online.target
+
 Wants=network-online.target
 
+
+
 [Service]
+
 Type=simple
-WorkingDirectory=/opt/xhhRobot
-ExecStart=/opt/xhhRobot/xhhRobot -mode start
+
+WorkingDirectory=/opt/Openxhh
+
+ExecStart=/opt/Openxhh/Openxhh -mode start
+
 Restart=always
+
 RestartSec=10
 
+
+
 [Install]
+
 WantedBy=multi-user.target
+
 EOF
 
+
+
 systemctl daemon-reload
-systemctl enable --now xhhRobot
+
+systemctl enable --now Openxhh
+
 ```
+
+
 
 查看状态和日志：
 
+
+
 ```bash
-systemctl status xhhRobot --no-pager
-journalctl -u xhhRobot -f
+
+systemctl status Openxhh --no-pager
+
+journalctl -u Openxhh -f
+
 ```
+
+
 
 ## 常用命令
 
+
+
 ```bash
-systemctl start xhhRobot
-systemctl stop xhhRobot
-systemctl restart xhhRobot
-systemctl status xhhRobot --no-pager
-journalctl -u xhhRobot -f
+
+systemctl start Openxhh
+
+systemctl stop Openxhh
+
+systemctl restart Openxhh
+
+systemctl status Openxhh --no-pager
+
+journalctl -u Openxhh -f
+
 ```
+
+
 
 ## 生图验证命令
 
+
+
 先验证命令识别和 Form Data，不调用真实生图接口：
 
+
+
 ```bash
+
 go run ./cmd/dry_run_image_comment \
+
   -comment_id 123 \
+
   -link_id 181099114 \
+
   -root_id 123 \
+
   -userid 你的ownerUID \
+
   -text "@机器人 生图 一只赛博朋克猫"
+
 ```
+
+
 
 调用真实生图接口但不上传、不发评论：
 
+
+
 ```bash
+
 go run ./cmd/dry_run_image_comment \
+
   -comment_id 123 \
+
   -link_id 181099114 \
+
   -root_id 123 \
+
   -userid 你的ownerUID \
+
   -text "@机器人 生图 一只赛博朋克猫" \
+
   -mock_image=false
+
 ```
+
+
 
 验证已有图片 URL 能否发带图评论：
 
+
+
 ```bash
+
 go run ./cmd/test_image_comment 181099114 "图片测试" "http://你的VPS公网IP/xhh-images/test.png"
+
 ```
+
+
 
 验证本地图片上传到外部图床并可选发布评论：
 
+
+
 ```bash
+
 go run ./cmd/test_xhh_image_upload_comment \
+
   -file ./images/example.png \
+
   -link_id 181099114 \
+
   -reply_id -1 \
+
   -root_id -1 \
+
   -text "图片测试" \
+
   -publish=true
+
 ```
+
+
 
 ## 安全建议
 
+
+
 - `config.json` 包含 AI token，`cookie.json` 是小黑盒登录态，不要上传到 GitHub。
+
 - 建议设置权限：
 
+
+
 ```bash
-chmod 600 /opt/xhhRobot/config.json /opt/xhhRobot/cookie.json /opt/xhhRobot/sql.db 2>/dev/null || true
-chmod 700 /opt/xhhRobot
+
+chmod 600 /opt/Openxhh/config.json /opt/Openxhh/cookie.json /opt/Openxhh/sql.db 2>/dev/null || true
+
+chmod 700 /opt/Openxhh
+
 ```
+
+
 
 - 不要把 `checkTime` 和 `replyTime` 调得太低，容易触发小黑盒风控。建议：
 
+
+
 ```json
+
 "checkTime": 60,
+
 "replyTime": 30
+
 ```
+
+
 
 ## 回滚
 
+
+
 更新脚本会自动备份旧二进制，文件名类似：
 
+
+
 ```text
-/opt/xhhRobot/xhhRobot.bak-20260517-120000
+
+/opt/Openxhh/Openxhh.bak-20260517-120000
+
 ```
+
+
 
 如需回滚：
 
+
+
 ```bash
-systemctl stop xhhRobot
-cp /opt/xhhRobot/xhhRobot.bak-时间戳 /opt/xhhRobot/xhhRobot
-chmod +x /opt/xhhRobot/xhhRobot
-systemctl start xhhRobot
+
+systemctl stop Openxhh
+
+cp /opt/Openxhh/Openxhh.bak-时间戳 /opt/Openxhh/Openxhh
+
+chmod +x /opt/Openxhh/Openxhh
+
+systemctl start Openxhh
+
 ```
+
+
 
 ## 免责声明
 
+
+
 本项目仅供个人学习和自用。自动化访问、自动回复和频繁请求可能触发平台风控，请自行控制频率并遵守小黑盒相关规则。
+
+
+
+## 致谢
+
+
+
+感谢 [SomeOvO/xhhRobot](https://github.com/SomeOvO/xhhRobot) 原项目提供早期基础思路与实现参考。

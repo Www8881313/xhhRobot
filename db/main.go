@@ -2,10 +2,10 @@ package db
 
 import (
 	"context"
-	"xhhrobot/config"
-	"xhhrobot/loger"
-	"xhhrobot/pg"
-	"xhhrobot/sqlite"
+	"openxhh/config"
+	"openxhh/loger"
+	"openxhh/pg"
+	"openxhh/sqlite"
 
 	"go.uber.org/zap"
 )

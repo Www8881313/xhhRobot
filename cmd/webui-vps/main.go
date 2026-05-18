@@ -65,8 +65,8 @@ type logFile struct {
 
 func main() {
 	addr := flag.String("addr", defaultAddr, "public listen address for VPS web ui")
-	root := flag.String("root", "/opt/xhhRobot", "xhhRobot working directory")
-	service := flag.String("service", "xhhRobot", "systemd service name")
+	root := flag.String("root", "/opt/Openxhh", "Openxhh working directory")
+	service := flag.String("service", "Openxhh", "systemd service name")
 	flag.Parse()
 
 	if err := validateServiceName(*service); err != nil {
@@ -89,7 +89,7 @@ func main() {
 		log.Fatal(err)
 	}
 	if created {
-		fmt.Println("xhhRobot VPS Web UI 已生成随机强密码")
+		fmt.Println("Openxhh VPS Web UI 已生成随机强密码")
 		fmt.Println("登录密码:", password)
 		fmt.Println("请立即保存；如需重置，停止 Web UI 后删除 webui_auth.json 再启动。")
 	}
@@ -111,7 +111,7 @@ func main() {
 		log.Fatalf("监听 %s 失败: %v", *addr, err)
 	}
 	state.listenAddr = listener.Addr().String()
-	fmt.Printf("xhhRobot VPS Web UI: http://%s\n", publicAddr(state.listenAddr))
+	fmt.Printf("Openxhh VPS Web UI: http://%s\n", publicAddr(state.listenAddr))
 	fmt.Printf("服务名: %s\n", state.service)
 	fmt.Printf("工作目录: %s\n", state.rootDir)
 	log.Fatal(http.Serve(listener, withSecurityHeaders(mux)))
@@ -560,9 +560,9 @@ const indexHTML = `<!doctype html>
 
           <section class="view" id="view-logs"><div class="card log-panel"><div class="log-head"><div><h2>日志管理</h2><p id="currentSource">等待日志源...</p></div><select id="logSelect"></select></div><div class="terminal"><pre id="logOutput" class="empty">等待日志...</pre></div></div></section>
 
-          <section class="view" id="view-service"><div class="card panel"><div class="panel-head"><div><h2>服务控制</h2><p>启动、停止或重启 xhhRobot systemd 服务。</p></div></div><div class="panel-actions"><button id="serviceStartBtn" class="primary">启动服务</button><button id="serviceRestartBtn" class="warn">重启服务</button><button id="serviceStopBtn" class="danger">停止服务</button><button id="serviceRefreshBtn" class="secondary">刷新状态</button></div><div class="warnbox">如果按钮报错，请确认 Web UI 运行用户有权限执行 systemctl。</div></div></section>
+          <section class="view" id="view-service"><div class="card panel"><div class="panel-head"><div><h2>服务控制</h2><p>启动、停止或重启 Openxhh systemd 服务。</p></div></div><div class="panel-actions"><button id="serviceStartBtn" class="primary">启动服务</button><button id="serviceRestartBtn" class="warn">重启服务</button><button id="serviceStopBtn" class="danger">停止服务</button><button id="serviceRefreshBtn" class="secondary">刷新状态</button></div><div class="warnbox">如果按钮报错，请确认 Web UI 运行用户有权限执行 systemctl。</div></div></section>
 
-          <section class="view" id="view-status"><div class="card panel"><div class="panel-head"><div><h2>系统状态</h2><p>当前 Web UI 与 xhhRobot 服务信息。</p></div></div><div class="meta"><div><span>监听地址</span><strong id="listenAddr">—</strong></div><div><span>工作目录</span><strong id="rootDir">—</strong></div><div><span>systemctl status</span><strong id="statusText" class="status-text">—</strong></div></div></div></section>
+          <section class="view" id="view-status"><div class="card panel"><div class="panel-head"><div><h2>系统状态</h2><p>当前 Web UI 与 Openxhh 服务信息。</p></div></div><div class="meta"><div><span>监听地址</span><strong id="listenAddr">—</strong></div><div><span>工作目录</span><strong id="rootDir">—</strong></div><div><span>systemctl status</span><strong id="statusText" class="status-text">—</strong></div></div></div></section>
 
           <section class="view" id="view-settings"><div class="card panel"><div class="settings-hero"><button class="avatar-button" type="button" aria-label="管理员头像"><img src="/assets/admin-avatar.png" alt="管理员"></button><div><h2>管理员设置</h2><p>这里集中展示 Web UI 的公开访问、认证和运行配置。敏感文件仍保持只读，不在公网面板直接编辑。</p></div></div><div class="settings-grid"><div class="setting"><span>systemd 服务</span><strong>{{.Service}}</strong><small>主控台按钮会对这个服务执行 start / stop / restart。</small></div><div class="setting"><span>Web UI 端口</span><strong>29173</strong><small>默认公网监听；建议只在云安全组放行你的固定 IP。</small></div><div class="setting"><span>认证方式</span><strong>随机强密码</strong><small>首次启动打印密码，本地仅保存 salted hash。</small></div><div class="setting"><span>失败限速</span><strong>5 次失败锁定 5 分钟</strong><small>降低公网暴力尝试风险。</small></div><div class="setting setting-wide"><span>安全建议</span><strong>公网访问建议配合 HTTPS 反代或安全组白名单</strong><small>如果只是自己使用，优先只开放可信来源 IP；不要把 webui_auth.json、config.json、cookie.json 上传到公开仓库。</small></div></div><div class="setting-actions"><button id="settingsHomeBtn" class="secondary" type="button">返回主控台</button><button id="logoutBtn" class="danger" type="button">退出登录</button></div></div></section>
         </div>

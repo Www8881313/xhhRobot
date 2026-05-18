@@ -2,9 +2,9 @@ package ai
 
 import (
 	"fmt"
+	"openxhh/config"
+	"openxhh/loger"
 	"strings"
-	"xhhrobot/config"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )

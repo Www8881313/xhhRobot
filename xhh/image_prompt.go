@@ -1,9 +1,9 @@
 package xhh
 
 import (
+	"openxhh/ai"
+	"openxhh/loger"
 	"strings"
-	"xhhrobot/ai"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )

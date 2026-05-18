@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"html"
 	"io"
+	"openxhh/ai"
+	"openxhh/loger"
 	"regexp"
 	"strconv"
 	"strings"
-	"xhhrobot/ai"
-	"xhhrobot/loger"
 
 	"go.uber.org/zap"
 )

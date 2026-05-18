@@ -4,3 +4,5 @@ sql.db
 main
 main.exe
 *.png
+dist/
+tmp-webui-test/

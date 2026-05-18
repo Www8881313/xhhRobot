@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"xhhrobot/config"
-	"xhhrobot/db"
-	"xhhrobot/loger"
-	"xhhrobot/xhh"
+	"openxhh/config"
+	"openxhh/db"
+	"openxhh/loger"
+	"openxhh/xhh"
 )
 
 func main() {
